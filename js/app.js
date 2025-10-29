@@ -124,3 +124,101 @@ function calculateSummary() {
     document.getElementById('total-receitas').textContent = `R$ ${totalReceitas.toFixed(2)}`;
     document.getElementById('total-despesas').textContent = `R$ ${totalDespesas.toFixed(2)}`;
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+
+    if (document.getElementById('dashboard-grid')) {
+        initDashboard();
+    }
+    if (document.getElementById('form-transacao')) {
+        initTransacoesPage();
+    }
+});
+
+
+function initTransacoesPage() {
+    const form = document.getElementById('form-transacao');
+    form.addEventListener('submit', handleTransacaoSubmit);
+    renderTransacoesTable();
+}
+
+function renderTransacoesTable() {
+    const tbody = document.getElementById('transacoes-tbody');
+    tbody.innerHTML = ''; 
+
+    db.transacoes.forEach(function(trans) {
+        const tr = document.createElement('tr');
+
+        tr.innerHTML = `
+            <td>${trans.descricao}</td>
+            <td>R$ ${trans.valor.toFixed(2)}</td>
+            <td>${trans.tipo}</td>
+            <td class="actions">
+                <button class="btn-edit">Editar</button>
+                <button class="btn-danger">Excluir</button>
+            </td>
+        `;
+
+        tr.querySelector('.btn-danger').addEventListener('click', function() {
+            handleDeleteTransacao(trans.id);
+        });
+        
+        tr.querySelector('.btn-edit').addEventListener('click', function() {
+            handleEditTransacao(trans);
+        });
+
+        tbody.appendChild(tr);
+    });
+}
+
+function handleTransacaoSubmit(event) {
+    event.preventDefault();
+
+    const id = document.getElementById('transacao-id').value;
+    const descricao = document.getElementById('trans-descricao').value;
+    const valor = parseFloat(document.getElementById('trans-valor').value);
+    const tipo = document.getElementById('trans-tipo').value;
+
+    if (id) {
+        const index = db.transacoes.findIndex(t => t.id == id);
+        if (index !== -1) {
+            db.transacoes[index].descricao = descricao;
+            db.transacoes[index].valor = valor;
+            db.transacoes[index].tipo = tipo;
+        }
+    } else {
+        const novaTransacao = {
+            id: Date.now(),
+            descricao: descricao,
+            valor: valor,
+            tipo: tipo
+        };
+        db.transacoes.push(novaTransacao);
+    }
+
+    saveDB();
+    renderTransacoesTable();
+    
+    document.getElementById('form-transacao').reset();
+    document.getElementById('transacao-id').value = '';
+}
+
+function handleEditTransacao(trans) {
+    document.getElementById('transacao-id').value = trans.id;
+    document.getElementById('trans-descricao').value = trans.descricao;
+    document.getElementById('trans-valor').value = trans.valor;
+    document.getElementById('trans-tipo').value = trans.tipo;
+    window.scrollTo(0, 0);
+}
+
+function handleDeleteTransacao(id) {
+    if (confirm('Tem certeza que deseja excluir esta transação?')) {
+        const index = db.transacoes.findIndex(t => t.id === id);
+        
+        if (index !== -1) {
+            db.transacoes.splice(index, 1);
+            saveDB(); 
+            renderTransacoesTable(); 
+        }
+    }
+}

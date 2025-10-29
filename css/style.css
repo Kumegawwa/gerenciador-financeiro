@@ -184,3 +184,9 @@ tbody tr:nth-child(even) {
 tbody tr:hover {
     background-color: #e9ecef;
 }
+
+.actions button {
+    font-size: 0.8em;
+    padding: 5px 8px;
+    margin-right: 5px;
+}
