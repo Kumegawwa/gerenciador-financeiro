@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorias - Minhas Finanças</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Minhas Finanças</h1>
+        <nav>
+            <ul>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="transacoes.html">Transações</a></li>
+                <li><a href="categorias.html">Categorias</a></li>
+                <li><a href="metas.html">Metas</a></li>
+                <li><a href="#" id="btn-logout">Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="form-container">
+            <h2>Nova Categoria</h2>
+            <form id="form-categoria">
+                <input type="hidden" id="categoria-id">
+                <div class="form-group">
+                    <label for="cat-nome">Nome da Categoria</label>
+                    <input type="text" id="cat-nome" required>
+                </div>
+                <button type="submit">Salvar</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>Minhas Categorias</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categorias-tbody">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Trabalho - Desenvolvimento Web Básico.</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

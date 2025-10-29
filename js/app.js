@@ -222,3 +222,86 @@ function handleDeleteTransacao(id) {
         }
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    
+    if (document.getElementById('form-transacao')) {
+        initTransacoesPage();
+    }
+    if (document.getElementById('form-categoria')) {
+        initCategoriasPage();
+    }
+});
+
+function initCategoriasPage() {
+    const form = document.getElementById('form-categoria');
+    form.addEventListener('submit', handleCategoriaSubmit);
+    renderCategoriasTable();
+}
+
+function renderCategoriasTable() {
+    const tbody = document.getElementById('categorias-tbody');
+    tbody.innerHTML = '';
+
+    db.categorias.forEach(function(cat) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${cat.nome}</td>
+            <td class="actions">
+                <button class="btn-edit">Editar</button>
+                <button class="btn-danger">Excluir</button>
+            </td>
+        `;
+
+        tr.querySelector('.btn-danger').addEventListener('click', function() {
+            handleDeleteCategoria(cat.id);
+        });
+        
+        tr.querySelector('.btn-edit').addEventListener('click', function() {
+            handleEditCategoria(cat);
+        });
+
+        tbody.appendChild(tr);
+    });
+}
+
+function handleCategoriaSubmit(event) {
+    event.preventDefault();
+
+    const id = document.getElementById('categoria-id').value;
+    const nome = document.getElementById('cat-nome').value;
+
+    if (id) {
+        const index = db.categorias.findIndex(c => c.id == id);
+        if (index !== -1) {
+            db.categorias[index].nome = nome;
+        }
+    } else {
+        db.categorias.push({
+            id: Date.now(),
+            nome: nome
+        });
+    }
+
+    saveDB();
+    renderCategoriasTable();
+    document.getElementById('form-categoria').reset();
+    document.getElementById('categoria-id').value = '';
+}
+
+function handleEditCategoria(cat) {
+    document.getElementById('categoria-id').value = cat.id;
+    document.getElementById('cat-nome').value = cat.nome;
+    window.scrollTo(0, 0);
+}
+
+function handleDeleteCategoria(id) {
+    if (confirm('Tem certeza que deseja excluir esta categoria?')) {
+        const index = db.categorias.findIndex(c => c.id === id);
+        if (index !== -1) {
+            db.categorias.splice(index, 1);
+            saveDB();
+            renderCategoriasTable();
+        }
+    }
+}
