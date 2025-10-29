@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Minhas Finanças</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Minhas Finanças</h1>
+        <nav>
+            <ul>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="transacoes.html">Transações</a></li>
+                <li><a href="categorias.html">Categorias</a></li>
+                <li><a href="metas.html">Metas</a></li>
+                <li><a href="#" id="btn-logout">Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Resumo Financeiro</h2>
+            <div class="dashboard-grid">
+                <article class="card">
+                    <h3>Saldo Atual</h3>
+                    <p id="saldo-atual">R$ 0,00</p>
+                </article>
+                <article class="card">
+                    <h3>Total Receitas</h3>
+                    <p id="total-receitas">R$ 0,00</p>
+                </article>
+                <article class="card">
+                    <h3>Total Despesas</h3>
+                    <p id="total-despesas">R$ 0,00</p>
+                </article>
+            </div>
+        </section>
+
+        <section>
+            <h2>Metas Atuais</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Descrição</th>
+                            <th>Progresso</th>
+                        </tr>
+                    </thead>
+                    <tbody id="metas-dashboard-tbody">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Trabalho Web Básico. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
