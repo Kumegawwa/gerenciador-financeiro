@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metas - Minhas Finanças</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Minhas Finanças</h1>
+        <nav>
+            <ul>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="transacoes.html">Transações</a></li>
+                <li><a href="categorias.html">Categorias</a></li>
+                <li><a href="metas.html">Metas</a></li>
+                <li><a href="#" id="btn-logout">Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="form-container">
+            <h2>Nova Meta de Economia</h2>
+            <form id="form-meta">
+                <input type="hidden" id="meta-id">
+                <div class="form-group">
+                    <label for="meta-descricao">Descrição da Meta</label>
+                    <input type="text" id="meta-descricao" required>
+                </div>
+                <div class="form-group">
+                    <label for="meta-alvo">Valor Alvo (R$)</label>
+                    <input type="number" id="meta-alvo" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="meta-atual">Valor Atual (R$)</label>
+                    <input type="number" id="meta-atual" step="0.01" value="0" required>
+                </div>
+                <button type="submit">Salvar</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>Minhas Metas</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Descrição</th>
+                            <th>Valor Alvo</th>
+                            <th>Valor Atual</th>
+                            <th>Progresso</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="metas-tbody">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Trabalho Web Básico.</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
