@@ -1,33 +1,3 @@
-document.addEventListener('DOMContentLoaded', function() {
-    
-    if (document.getElementById('form-login')) {
-        initLoginPage();
-    }
-});
-
-
-function initLoginPage() {
-    const loginForm = document.getElementById('form-login');
-    loginForm.addEventListener('submit', handleLogin);
-}
-
-function handleLogin(event) {
-
-    event.preventDefault(); 
-
-    const user = document.getElementById('username').value;
-    const pass = document.getElementById('password').value;
-    const errorMsg = document.getElementById('login-error');
-
-    // senha é "1234"
-    if (user === 'admin' && pass === '1234') {
-        localStorage.setItem('isLoggedIn', 'true');
-        window.location.href = 'dashboard.html';
-    } else {
-        errorMsg.textContent = 'Usuário ou senha inválidos.';
-    }
-}
-
 let db = {
     transacoes: [],
     categorias: [],
@@ -42,18 +12,50 @@ document.addEventListener('DOMContentLoaded', function() {
         checkAuth();
         initAdminPage();
     }
-
     if (document.getElementById('dashboard-grid')) {
         initDashboard();
     }
+    if (document.getElementById('form-transacao')) {
+        initTransacoesPage();
+    }
+    if (document.getElementById('form-categoria')) {
+        initCategoriasPage();
+    }
+    if (document.getElementById('form-meta')) {
+        initMetasPage();
+    }
 });
 
+function initLoginPage() {
+    const loginForm = document.getElementById('form-login');
+    if (loginForm) { 
+        loginForm.addEventListener('submit', handleLogin);
+    }
+}
+
+function handleLogin(event) {
+    event.preventDefault();
+
+    const user = document.getElementById('username').value;
+    const pass = document.getElementById('password').value;
+    const errorMsg = document.getElementById('login-error');
+
+    // Simulação de login 
+    // A senha é "1234"
+    if (user === 'admin' && pass === '1234') {
+        localStorage.setItem('isLoggedIn', 'true');
+        window.location.href = 'dashboard.html';
+    } else {
+        errorMsg.textContent = 'Usuário ou senha inválidos.';
+    }
+}
 
 function checkAuth() {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     if (isLoggedIn !== 'true') {
         alert('Você precisa estar logado para acessar esta página.');
         window.location.href = 'index.html';
+        throw new Error('Usuário não autenticado');
     }
     
     loadDB();
@@ -90,12 +92,13 @@ function initDashboard() {
 
 function renderDashboardMetas() {
     const tbody = document.getElementById('metas-dashboard-tbody');
+    if (!tbody) return;
     tbody.innerHTML = '';
 
     db.metas.forEach(function(meta) {
         const tr = document.createElement('tr');
         
-        const progresso = (meta.valorAtual / meta.valorAlvo) * 100;
+        const progresso = (meta.valorAlvo > 0) ? (meta.valorAtual / meta.valorAlvo) * 100 : 0;
 
         tr.innerHTML = `
             <td>${meta.descricao}</td>
@@ -111,10 +114,11 @@ function calculateSummary() {
     let totalDespesas = 0;
 
     db.transacoes.forEach(function(trans) {
+        const valor = parseFloat(trans.valor) || 0; 
         if (trans.tipo === 'receita') {
-            totalReceitas += trans.valor;
+            totalReceitas += valor;
         } else {
-            totalDespesas += trans.valor;
+            totalDespesas += valor;
         }
     });
 
@@ -125,17 +129,6 @@ function calculateSummary() {
     document.getElementById('total-despesas').textContent = `R$ ${totalDespesas.toFixed(2)}`;
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-
-    if (document.getElementById('dashboard-grid')) {
-        initDashboard();
-    }
-    if (document.getElementById('form-transacao')) {
-        initTransacoesPage();
-    }
-});
-
-
 function initTransacoesPage() {
     const form = document.getElementById('form-transacao');
     form.addEventListener('submit', handleTransacaoSubmit);
@@ -144,10 +137,11 @@ function initTransacoesPage() {
 
 function renderTransacoesTable() {
     const tbody = document.getElementById('transacoes-tbody');
+    if (!tbody) return; 
     tbody.innerHTML = ''; 
 
     db.transacoes.forEach(function(trans) {
-        const tr = document.createElement('tr');
+        const tr = document.createElement('tr'); 
 
         tr.innerHTML = `
             <td>${trans.descricao}</td>
@@ -179,6 +173,11 @@ function handleTransacaoSubmit(event) {
     const valor = parseFloat(document.getElementById('trans-valor').value);
     const tipo = document.getElementById('trans-tipo').value;
 
+    if (!descricao || isNaN(valor)) {
+        alert('Por favor, preencha a descrição e um valor válido.');
+        return;
+    }
+
     if (id) {
         const index = db.transacoes.findIndex(t => t.id == id);
         if (index !== -1) {
@@ -208,7 +207,7 @@ function handleEditTransacao(trans) {
     document.getElementById('trans-descricao').value = trans.descricao;
     document.getElementById('trans-valor').value = trans.valor;
     document.getElementById('trans-tipo').value = trans.tipo;
-    window.scrollTo(0, 0);
+    window.scrollTo(0, 0); 
 }
 
 function handleDeleteTransacao(id) {
@@ -217,21 +216,12 @@ function handleDeleteTransacao(id) {
         
         if (index !== -1) {
             db.transacoes.splice(index, 1);
-            saveDB(); 
-            renderTransacoesTable(); 
+            saveDB();
+            renderTransacoesTable();
         }
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    
-    if (document.getElementById('form-transacao')) {
-        initTransacoesPage();
-    }
-    if (document.getElementById('form-categoria')) {
-        initCategoriasPage();
-    }
-});
 
 function initCategoriasPage() {
     const form = document.getElementById('form-categoria');
@@ -241,6 +231,7 @@ function initCategoriasPage() {
 
 function renderCategoriasTable() {
     const tbody = document.getElementById('categorias-tbody');
+    if (!tbody) return;
     tbody.innerHTML = '';
 
     db.categorias.forEach(function(cat) {
@@ -271,6 +262,11 @@ function handleCategoriaSubmit(event) {
     const id = document.getElementById('categoria-id').value;
     const nome = document.getElementById('cat-nome').value;
 
+    if (!nome) {
+        alert('O nome da categoria não pode estar vazio.');
+        return;
+    }
+
     if (id) {
         const index = db.categorias.findIndex(c => c.id == id);
         if (index !== -1) {
@@ -299,22 +295,13 @@ function handleDeleteCategoria(id) {
     if (confirm('Tem certeza que deseja excluir esta categoria?')) {
         const index = db.categorias.findIndex(c => c.id === id);
         if (index !== -1) {
-            db.categorias.splice(index, 1);
+            db.categorias.splice(index, 1); 
             saveDB();
             renderCategoriasTable();
         }
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    
-    if (document.getElementById('form-categoria')) {
-        initCategoriasPage();
-    }
-    if (document.getElementById('form-meta')) {
-        initMetasPage();
-    }
-});
 
 function initMetasPage() {
     const form = document.getElementById('form-meta');
@@ -324,11 +311,12 @@ function initMetasPage() {
 
 function renderMetasTable() {
     const tbody = document.getElementById('metas-tbody');
+    if (!tbody) return;
     tbody.innerHTML = '';
 
     db.metas.forEach(function(meta) {
-        const tr = document.createElement('tr');
-        const progresso = (meta.valorAtual / meta.valorAlvo) * 100;
+        const tr = document.createElement('tr'); 
+        const progresso = (meta.valorAlvo > 0) ? (meta.valorAtual / meta.valorAlvo) * 100 : 0;
 
         tr.innerHTML = `
             <td>${meta.descricao}</td>
@@ -349,17 +337,22 @@ function renderMetasTable() {
             handleEditMeta(meta);
         });
 
-        tbody.appendChild(tr);
+        tbody.appendChild(tr); 
     });
 }
 
 function handleMetaSubmit(event) {
-    event.preventDefault();
+    event.preventDefault(); 
 
     const id = document.getElementById('meta-id').value;
     const descricao = document.getElementById('meta-descricao').value;
     const valorAlvo = parseFloat(document.getElementById('meta-alvo').value);
     const valorAtual = parseFloat(document.getElementById('meta-atual').value);
+
+    if (!descricao || isNaN(valorAlvo) || isNaN(valorAtual)) {
+        alert('Por favor, preencha a descrição e valores válidos.');
+        return;
+    }
 
     if (id) {
         const index = db.metas.findIndex(m => m.id == id);
@@ -374,7 +367,7 @@ function handleMetaSubmit(event) {
             descricao: descricao,
             valorAlvo: valorAlvo,
             valorAtual: valorAtual
-        });
+        }); 
     }
 
     saveDB(); 
@@ -395,7 +388,7 @@ function handleDeleteMeta(id) {
     if (confirm('Tem certeza que deseja excluir esta meta?')) {
         const index = db.metas.findIndex(m => m.id === id);
         if (index !== -1) {
-            db.metas.splice(index, 1);
+            db.metas.splice(index, 1); 
             saveDB();
             renderMetasTable();
         }
