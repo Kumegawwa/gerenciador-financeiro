@@ -76,6 +76,7 @@ function handleLogout(event) {
 
 function loadDB() {
     const dbJSON = localStorage.getItem('minhasFinancasDB');
+    console.log("1. loadDB foi chamado. Dados do localStorage:", dbJSON);
     if (dbJSON) {
         db = JSON.parse(dbJSON);
     }
@@ -110,6 +111,7 @@ function renderDashboardMetas() {
 }
 
 function calculateSummary() {
+    console.log("2. calculateSummary foi chamado. Transações no DB:", db.transacoes);
     let totalReceitas = 0;
     let totalDespesas = 0;
 
