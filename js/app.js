@@ -305,3 +305,99 @@ function handleDeleteCategoria(id) {
         }
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    
+    if (document.getElementById('form-categoria')) {
+        initCategoriasPage();
+    }
+    if (document.getElementById('form-meta')) {
+        initMetasPage();
+    }
+});
+
+function initMetasPage() {
+    const form = document.getElementById('form-meta');
+    form.addEventListener('submit', handleMetaSubmit);
+    renderMetasTable();
+}
+
+function renderMetasTable() {
+    const tbody = document.getElementById('metas-tbody');
+    tbody.innerHTML = '';
+
+    db.metas.forEach(function(meta) {
+        const tr = document.createElement('tr');
+        const progresso = (meta.valorAtual / meta.valorAlvo) * 100;
+
+        tr.innerHTML = `
+            <td>${meta.descricao}</td>
+            <td>R$ ${meta.valorAlvo.toFixed(2)}</td>
+            <td>R$ ${meta.valorAtual.toFixed(2)}</td>
+            <td>${progresso.toFixed(0)}%</td>
+            <td class="actions">
+                <button class="btn-edit">Editar</button>
+                <button class="btn-danger">Excluir</button>
+            </td>
+        `;
+
+        tr.querySelector('.btn-danger').addEventListener('click', function() {
+            handleDeleteMeta(meta.id);
+        });
+        
+        tr.querySelector('.btn-edit').addEventListener('click', function() {
+            handleEditMeta(meta);
+        });
+
+        tbody.appendChild(tr);
+    });
+}
+
+function handleMetaSubmit(event) {
+    event.preventDefault();
+
+    const id = document.getElementById('meta-id').value;
+    const descricao = document.getElementById('meta-descricao').value;
+    const valorAlvo = parseFloat(document.getElementById('meta-alvo').value);
+    const valorAtual = parseFloat(document.getElementById('meta-atual').value);
+
+    if (id) {
+        const index = db.metas.findIndex(m => m.id == id);
+        if (index !== -1) {
+            db.metas[index].descricao = descricao;
+            db.metas[index].valorAlvo = valorAlvo;
+            db.metas[index].valorAtual = valorAtual;
+        }
+    } else {
+        db.metas.push({
+            id: Date.now(),
+            descricao: descricao,
+            valorAlvo: valorAlvo,
+            valorAtual: valorAtual
+        });
+    }
+
+    saveDB(); 
+    renderMetasTable();
+    document.getElementById('form-meta').reset();
+    document.getElementById('meta-id').value = '';
+}
+
+function handleEditMeta(meta) {
+    document.getElementById('meta-id').value = meta.id;
+    document.getElementById('meta-descricao').value = meta.descricao;
+    document.getElementById('meta-alvo').value = meta.valorAlvo;
+    document.getElementById('meta-atual').value = meta.valorAtual;
+    window.scrollTo(0, 0);
+}
+
+function handleDeleteMeta(id) {
+    if (confirm('Tem certeza que deseja excluir esta meta?')) {
+        const index = db.metas.findIndex(m => m.id === id);
+        if (index !== -1) {
+            db.metas.splice(index, 1);
+            saveDB();
+            renderMetasTable();
+        }
+    }
+}
