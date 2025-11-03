@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
         checkAuth();
         initAdminPage();
     }
+
     if (document.getElementById('dashboard-grid')) {
         initDashboard();
     }
@@ -40,8 +41,6 @@ function handleLogin(event) {
     const pass = document.getElementById('password').value;
     const errorMsg = document.getElementById('login-error');
 
-    // Simulação de login 
-    // A senha é "1234"
     if (user === 'admin' && pass === '1234') {
         localStorage.setItem('isLoggedIn', 'true');
         window.location.href = 'dashboard.html';
@@ -76,7 +75,6 @@ function handleLogout(event) {
 
 function loadDB() {
     const dbJSON = localStorage.getItem('minhasFinancasDB');
-    console.log("1. loadDB foi chamado. Dados do localStorage:", dbJSON);
     if (dbJSON) {
         db = JSON.parse(dbJSON);
     }
@@ -111,7 +109,6 @@ function renderDashboardMetas() {
 }
 
 function calculateSummary() {
-    console.log("2. calculateSummary foi chamado. Transações no DB:", db.transacoes);
     let totalReceitas = 0;
     let totalDespesas = 0;
 
@@ -129,26 +126,113 @@ function calculateSummary() {
     document.getElementById('saldo-atual').textContent = `R$ ${saldoAtual.toFixed(2)}`;
     document.getElementById('total-receitas').textContent = `R$ ${totalReceitas.toFixed(2)}`;
     document.getElementById('total-despesas').textContent = `R$ ${totalDespesas.toFixed(2)}`;
+
+    renderGraficoDashboard(totalReceitas, totalDespesas);
+}
+
+function renderGraficoDashboard(totalReceitas, totalDespesas) {
+    const container = document.getElementById('grafico-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const maxValor = Math.max(totalReceitas, totalDespesas, 1);
+    const alturaReceita = (totalReceitas / maxValor) * 220;
+    const alturaDespesa = (totalDespesas / maxValor) * 220;
+
+    const barraReceita = document.createElement('div');
+    barraReceita.className = 'grafico-barra receita';
+    barraReceita.style.height = alturaReceita + 'px';
+    barraReceita.innerHTML = `
+        <p>Receitas</p>
+        <p class="valor-barra">R$ ${totalReceitas.toFixed(2)}</p>
+    `;
+
+    const barraDespesa = document.createElement('div');
+    barraDespesa.className = 'grafico-barra despesa';
+    barraDespesa.style.height = alturaDespesa + 'px';
+    barraDespesa.innerHTML = `
+        <p>Despesas</p>
+        <p class="valor-barra">R$ ${totalDespesas.toFixed(2)}</p>
+    `;
+
+    container.appendChild(barraReceita);
+    container.appendChild(barraDespesa);
 }
 
 function initTransacoesPage() {
     const form = document.getElementById('form-transacao');
     form.addEventListener('submit', handleTransacaoSubmit);
-    renderTransacoesTable();
+    
+    populateCategoriasSelect('trans-categoria');
+    populateCategoriasSelect('filtro-categoria');
+
+    const filtro = document.getElementById('filtro-categoria');
+    filtro.addEventListener('change', function() {
+        renderTransacoesTable(filtro.value);
+    });
+
+    const btnLimpar = document.getElementById('btn-limpar-filtro');
+    btnLimpar.addEventListener('click', function() {
+        filtro.value = 'todas';
+        renderTransacoesTable('todas');
+    });
+
+    renderTransacoesTable('todas');
 }
 
-function renderTransacoesTable() {
+function populateCategoriasSelect(selectId) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+
+    if (select.id === 'trans-categoria') {
+        select.innerHTML = '<option value="">Selecione uma categoria</option>';
+    }
+
+    db.categorias.forEach(function(cat) {
+        const option = document.createElement('option');
+        option.value = cat.id;
+        option.textContent = cat.nome;
+        select.appendChild(option);
+    });
+}
+
+function getCategoryNameById(id) {
+    let nome = 'Sem Categoria';
+    db.categorias.forEach(function(cat) {
+        if (cat.id == id) {
+            nome = cat.nome;
+        }
+    });
+    return nome;
+}
+
+function renderTransacoesTable(filtroCategoriaId = 'todas') {
     const tbody = document.getElementById('transacoes-tbody');
     if (!tbody) return; 
     tbody.innerHTML = ''; 
 
-    db.transacoes.forEach(function(trans) {
+    const transacoesParaRenderizar = [];
+    if (filtroCategoriaId === 'todas') {
+        db.transacoes.forEach(function(trans) {
+            transacoesParaRenderizar.push(trans);
+        });
+    } else {
+        db.transacoes.forEach(function(trans) {
+            if (trans.categoriaId == filtroCategoriaId) {
+                transacoesParaRenderizar.push(trans);
+            }
+        });
+    }
+
+    transacoesParaRenderizar.forEach(function(trans) {
         const tr = document.createElement('tr'); 
+        const nomeCategoria = getCategoryNameById(trans.categoriaId);
 
         tr.innerHTML = `
             <td>${trans.descricao}</td>
             <td>R$ ${trans.valor.toFixed(2)}</td>
             <td>${trans.tipo}</td>
+            <td>${nomeCategoria}</td>
             <td class="actions">
                 <button class="btn-edit">Editar</button>
                 <button class="btn-danger">Excluir</button>
@@ -174,9 +258,10 @@ function handleTransacaoSubmit(event) {
     const descricao = document.getElementById('trans-descricao').value;
     const valor = parseFloat(document.getElementById('trans-valor').value);
     const tipo = document.getElementById('trans-tipo').value;
+    const categoriaId = document.getElementById('trans-categoria').value;
 
-    if (!descricao || isNaN(valor)) {
-        alert('Por favor, preencha a descrição e um valor válido.');
+    if (!descricao || isNaN(valor) || !categoriaId) {
+        alert('Por favor, preencha descrição, valor e categoria válidos.');
         return;
     }
 
@@ -186,19 +271,21 @@ function handleTransacaoSubmit(event) {
             db.transacoes[index].descricao = descricao;
             db.transacoes[index].valor = valor;
             db.transacoes[index].tipo = tipo;
+            db.transacoes[index].categoriaId = categoriaId;
         }
     } else {
         const novaTransacao = {
             id: Date.now(),
             descricao: descricao,
             valor: valor,
-            tipo: tipo
+            tipo: tipo,
+            categoriaId: categoriaId
         };
         db.transacoes.push(novaTransacao);
     }
 
     saveDB();
-    renderTransacoesTable();
+    renderTransacoesTable(document.getElementById('filtro-categoria').value);
     
     document.getElementById('form-transacao').reset();
     document.getElementById('transacao-id').value = '';
@@ -209,6 +296,7 @@ function handleEditTransacao(trans) {
     document.getElementById('trans-descricao').value = trans.descricao;
     document.getElementById('trans-valor').value = trans.valor;
     document.getElementById('trans-tipo').value = trans.tipo;
+    document.getElementById('trans-categoria').value = trans.categoriaId;
     window.scrollTo(0, 0); 
 }
 
@@ -219,11 +307,10 @@ function handleDeleteTransacao(id) {
         if (index !== -1) {
             db.transacoes.splice(index, 1);
             saveDB();
-            renderTransacoesTable();
+            renderTransacoesTable(document.getElementById('filtro-categoria').value);
         }
     }
 }
-
 
 function initCategoriasPage() {
     const form = document.getElementById('form-categoria');
@@ -303,7 +390,6 @@ function handleDeleteCategoria(id) {
         }
     }
 }
-
 
 function initMetasPage() {
     const form = document.getElementById('form-meta');
@@ -387,7 +473,7 @@ function handleEditMeta(meta) {
 }
 
 function handleDeleteMeta(id) {
-    if (confirm('Tem certeza que deseja excluir esta meta?')) {
+    if (confirm('Tem certeza que deseja excluir esta categoria?')) {
         const index = db.metas.findIndex(m => m.id === id);
         if (index !== -1) {
             db.metas.splice(index, 1); 
