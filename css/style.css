@@ -191,6 +191,53 @@ tbody tr:hover {
     margin-right: 5px;
 }
 
+.grafico-resumo {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-top: 20px;
+}
+
+#grafico-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    height: 250px;
+    border-bottom: 2px solid #ccc;
+    padding: 10px;
+}
+
+.grafico-barra {
+    width: 100px;
+    background-color: #0056b3;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    box-sizing: border-box;
+    transition: height 0.5s ease-out;
+}
+
+.grafico-barra.despesa {
+    background-color: #d9534f;
+}
+
+.grafico-barra.receita {
+    background-color: #5cb85c;
+}
+
+.grafico-barra p {
+    margin: 0;
+    font-size: 0.8em;
+}
+
+.grafico-barra .valor-barra {
+    font-size: 1em;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+
 @media (max-width: 768px) {
     nav ul {
         flex-direction: column;
@@ -206,6 +253,14 @@ tbody tr:hover {
     }
 
     .table-container {
+        font-size: 0.9em;
+    }
+
+    #grafico-container {
+        height: 200px;
+    }
+    .grafico-barra {
+        width: 80px;
         font-size: 0.9em;
     }
 }
