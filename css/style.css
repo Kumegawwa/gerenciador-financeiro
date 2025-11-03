@@ -217,20 +217,30 @@ tbody tr:hover {
 
 #grafico-container {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     align-items: flex-end;
+    gap: 50px;
     height: 250px;
     border-bottom: 2px solid #ccc;
     padding: 10px;
 }
 
 .grafico-barra {
-    width: 100px;
-    background-color: #0056b3;
+    width: 120px;
+    min-height: 60px;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
     color: white;
-    text-align: center;
-    padding: 10px 0;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    
+    padding: 10px;
     box-sizing: border-box;
+    border-radius: 5px 5px 0 0;
     transition: height 0.5s ease-out;
 }
 
@@ -243,16 +253,18 @@ tbody tr:hover {
 }
 
 .grafico-barra p {
-    margin: 0;
-    font-size: 0.8em;
+     margin: 0;
 }
 
-.grafico-barra .valor-barra {
-    font-size: 1em;
-    font-weight: bold;
-    margin-top: 5px;
+.grafico-texto-label {
+    font-size: 0.9em;
+    opacity: 0.9;
 }
 
+.grafico-texto-valor {
+    font-size: 1.1em;
+    margin-top: 4px;
+}
 
 @media (max-width: 768px) {
     header {
@@ -280,9 +292,11 @@ tbody tr:hover {
 
     #grafico-container {
         height: 200px;
+        gap: 25px;
     }
     .grafico-barra {
-        width: 80px;
+        width: 100px;
+        min-height: 50px;
         font-size: 0.9em;
     }
 }
