@@ -67,6 +67,6 @@ Este trabalho foi desenvolvido como avaliação final para a disciplina de Desen
 
 ---
 
-**Autor(es):**
+**Autor:**
 
-* [Lucas Kumegawa]
+* Lucas Kumegawa
