@@ -65,7 +65,21 @@ function initAdminPage() {
     if (btnLogout) {
         btnLogout.addEventListener('click', handleLogout);
     }
+    highlightActiveLink();
 }
+
+function highlightActiveLink() {
+    const currentPath = window.location.pathname; 
+    const navLinks = document.querySelectorAll('nav ul li a');
+
+    navLinks.forEach(function(link) {
+        const linkPath = link.getAttribute('href');
+        if (currentPath.endsWith(linkPath)) {
+            link.className = 'nav-active';
+        }
+    });
+}
+
 
 function handleLogout(event) {
     event.preventDefault();
