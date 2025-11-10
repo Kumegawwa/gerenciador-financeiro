@@ -1,4 +1,4 @@
-let db = {
+let dados = {
     transacoes: [],
     categorias: [],
     metas: []
@@ -7,201 +7,230 @@ let db = {
 document.addEventListener('DOMContentLoaded', function() {
     
     if (document.getElementById('form-login')) {
-        initLoginPage();
+        iniciarPaginaLogin();
     } else {
-        checkAuth();
-        initAdminPage();
+        verificarLogin();
+        iniciarPaginaAdmin();
     }
 
     if (document.getElementById('form-transacao')) {
-        initTransacoesPage();
+        iniciarPagTransacoes();
     }
     if (document.getElementById('form-categoria')) {
-        initCategoriasPage();
+        iniciarPagCategorias();
     }
     if (document.getElementById('form-meta')) {
-        initMetasPage();
+        iniciarPagMetas();
     }
 });
 
-function initLoginPage() {
-    const loginForm = document.getElementById('form-login');
-    if (loginForm) { 
-        loginForm.addEventListener('submit', handleLogin);
+function iniciarPaginaLogin() {
+    const formLogin = document.getElementById('form-login');
+    if (formLogin) { 
+        formLogin.addEventListener('submit', fazerLogin);
     }
 }
 
-function handleLogin(event) {
+function fazerLogin(event) {
     event.preventDefault();
 
-    const user = document.getElementById('username').value;
-    const pass = document.getElementById('password').value;
-    const errorMsg = document.getElementById('login-error');
+    const usuario = document.getElementById('username').value;
+    const senha = document.getElementById('password').value;
+    const msgErro = document.getElementById('login-error');
 
-    if (user === 'admin' && pass === '1234') {
-        localStorage.setItem('isLoggedIn', 'true');
+    if (usuario === 'admin' && senha === '1234') {
+        localStorage.setItem('usuarioLogado', 'true');
         window.location.href = 'dashboard.html';
     } else {
-        errorMsg.textContent = 'Usuário ou senha inválidos.';
+        msgErro.textContent = 'Usuário ou senha inválidos.';
     }
 }
 
-function checkAuth() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    if (isLoggedIn !== 'true') {
+function verificarLogin() {
+    const usuarioLogado = localStorage.getItem('usuarioLogado');
+    if (usuarioLogado !== 'true') {
         alert('Você precisa estar logado para acessar esta página.');
         window.location.href = 'index.html';
         throw new Error('Usuário não autenticado');
     }
     
-    loadDB();
+    carregarDados();
 }
 
-function initAdminPage() {
-    const btnLogout = document.getElementById('btn-logout');
-    if (btnLogout) {
-        btnLogout.addEventListener('click', handleLogout);
+function iniciarPaginaAdmin() {
+    const botaoSair = document.getElementById('btn-logout');
+    if (botaoSair) {
+        botaoSair.addEventListener('click', fazerLogout);
     }
 }
 
-function handleLogout(event) {
+function fazerLogout(event) {
     event.preventDefault();
-    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('usuarioLogado');
     window.location.href = 'index.html';
 }
 
-function loadDB() {
-    const dbJSON = localStorage.getItem('minhasFinancasDB');
-    if (dbJSON) {
-        db = JSON.parse(dbJSON);
+function carregarDados() {
+    const dadosJSON = localStorage.getItem('minhasFinancasDB');
+    if (dadosJSON) {
+        dados = JSON.parse(dadosJSON);
     }
 }
 
-function saveDB() {
-    localStorage.setItem('minhasFinancasDB', JSON.stringify(db));
+function salvarDados() {
+    localStorage.setItem('minhasFinancasDB', JSON.stringify(dados));
 }
 
-function initTransacoesPage() {
-    const form = document.getElementById('form-transacao');
-    form.addEventListener('submit', handleTransacaoSubmit);
-    renderTransacoesTable();
+function iniciarPagTransacoes() {
+    const formulario = document.getElementById('form-transacao');
+    formulario.addEventListener('submit', salvarTransacao);
+    
+    carregarCategoriasDropdown();
+    mostrarTabelaTransacoes();
 }
 
-function renderTransacoesTable() {
-    const tbody = document.getElementById('transacoes-tbody');
-    if (!tbody) return; 
-    tbody.innerHTML = ''; 
+function carregarCategoriasDropdown() {
+    const selectCategoria = document.getElementById('trans-categoria');
+    if (!selectCategoria) return;
 
-    db.transacoes.forEach(function(trans) {
-        const tr = document.createElement('tr'); 
+    dados.categorias.forEach(function(cat) {
+        const option = document.createElement('option');
+        option.value = cat.id;
+        option.textContent = cat.nome;
+        selectCategoria.appendChild(option);
+    });
+}
 
-        tr.innerHTML = `
+function buscarNomeCategoria(id) {
+    for (let i = 0; i < dados.categorias.length; i++) {
+        if (dados.categorias[i].id == id) {
+            return dados.categorias[i].nome;
+        }
+    }
+    return "Sem Categoria";
+}
+
+function mostrarTabelaTransacoes() {
+    const corpoTabela = document.getElementById('transacoes-tbody');
+    if (!corpoTabela) return; 
+    corpoTabela.innerHTML = ''; 
+
+    dados.transacoes.forEach(function(trans) {
+        const novaLinha = document.createElement('tr'); 
+        const nomeCategoria = buscarNomeCategoria(trans.categoriaId);
+
+        novaLinha.innerHTML = `
             <td>${trans.descricao}</td>
             <td>R$ ${trans.valor.toFixed(2)}</td>
             <td>${trans.tipo}</td>
+            <td>${nomeCategoria}</td>
             <td class="actions">
                 <button class="btn-edit">Editar</button>
                 <button class="btn-danger">Excluir</button>
             </td>
         `;
 
-        tr.querySelector('.btn-danger').addEventListener('click', function() {
-            handleDeleteTransacao(trans.id);
+        novaLinha.querySelector('.btn-danger').addEventListener('click', function() {
+            deletarTransacao(trans.id);
         });
         
-        tr.querySelector('.btn-edit').addEventListener('click', function() {
-            handleEditTransacao(trans);
+        novaLinha.querySelector('.btn-edit').addEventListener('click', function() {
+            prepararEdicaoTransacao(trans);
         });
 
-        tbody.appendChild(tr);
+        corpoTabela.appendChild(novaLinha);
     });
 }
 
-function handleTransacaoSubmit(event) {
+function salvarTransacao(event) {
     event.preventDefault();
 
     const id = document.getElementById('transacao-id').value;
     const descricao = document.getElementById('trans-descricao').value;
     const valor = parseFloat(document.getElementById('trans-valor').value);
     const tipo = document.getElementById('trans-tipo').value;
+    const categoriaId = document.getElementById('trans-categoria').value;
 
-    if (!descricao || isNaN(valor)) {
-        alert('Por favor, preencha a descrição e um valor válido.');
+    if (!descricao || isNaN(valor) || !categoriaId) {
+        alert('Por favor, preencha todos os campos, incluindo a categoria.');
         return;
     }
 
     if (id) {
-        let index = -1;
-        for (let i = 0; i < db.transacoes.length; i++) {
-            if (db.transacoes[i].id == id) {
-                index = i;
+        let indice = -1;
+        for (let i = 0; i < dados.transacoes.length; i++) {
+            if (dados.transacoes[i].id == id) {
+                indice = i;
                 break;
             }
         }
 
-        if (index !== -1) {
-            db.transacoes[index].descricao = descricao;
-            db.transacoes[index].valor = valor;
-            db.transacoes[index].tipo = tipo;
+        if (indice !== -1) {
+            dados.transacoes[indice].descricao = descricao;
+            dados.transacoes[indice].valor = valor;
+            dados.transacoes[indice].tipo = tipo;
+            dados.transacoes[indice].categoriaId = categoriaId;
         }
     } else {
-        const novaTransacao = {
+        const novaTrans = {
             id: Date.now(),
             descricao: descricao,
             valor: valor,
-            tipo: tipo
+            tipo: tipo,
+            categoriaId: categoriaId
         };
-        db.transacoes.push(novaTransacao);
+        dados.transacoes.push(novaTrans);
     }
 
-    saveDB();
-    renderTransacoesTable();
+    salvarDados();
+    mostrarTabelaTransacoes();
     
     document.getElementById('form-transacao').reset();
     document.getElementById('transacao-id').value = '';
 }
 
-function handleEditTransacao(trans) {
+function prepararEdicaoTransacao(trans) {
     document.getElementById('transacao-id').value = trans.id;
     document.getElementById('trans-descricao').value = trans.descricao;
     document.getElementById('trans-valor').value = trans.valor;
     document.getElementById('trans-tipo').value = trans.tipo;
+    document.getElementById('trans-categoria').value = trans.categoriaId;
     window.scrollTo(0, 0); 
 }
 
-function handleDeleteTransacao(id) {
+function deletarTransacao(id) {
     if (confirm('Tem certeza que deseja excluir esta transação?')) {
         
-        let index = -1;
-        for (let i = 0; i < db.transacoes.length; i++) {
-            if (db.transacoes[i].id == id) {
-                index = i;
+        let indice = -1;
+        for (let i = 0; i < dados.transacoes.length; i++) {
+            if (dados.transacoes[i].id == id) {
+                indice = i;
                 break;
             }
         }
         
-        if (index !== -1) {
-            db.transacoes.splice(index, 1);
-            saveDB();
-            renderTransacoesTable();
+        if (indice !== -1) {
+            dados.transacoes.splice(indice, 1);
+            salvarDados();
+            mostrarTabelaTransacoes();
         }
     }
 }
 
-function initCategoriasPage() {
-    const form = document.getElementById('form-categoria');
-    form.addEventListener('submit', handleCategoriaSubmit);
-    renderCategoriasTable();
+function iniciarPagCategorias() {
+    const formulario = document.getElementById('form-categoria');
+    formulario.addEventListener('submit', salvarCategoria);
+    mostrarTabelaCategorias();
 }
 
-function renderCategoriasTable() {
-    const tbody = document.getElementById('categorias-tbody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
+function mostrarTabelaCategorias() {
+    const corpoTabela = document.getElementById('categorias-tbody');
+    if (!corpoTabela) return;
+    corpoTabela.innerHTML = '';
 
-    db.categorias.forEach(function(cat) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
+    dados.categorias.forEach(function(cat) {
+        const novaLinha = document.createElement('tr');
+        novaLinha.innerHTML = `
             <td>${cat.nome}</td>
             <td class="actions">
                 <button class="btn-edit">Editar</button>
@@ -209,19 +238,19 @@ function renderCategoriasTable() {
             </td>
         `;
 
-        tr.querySelector('.btn-danger').addEventListener('click', function() {
-            handleDeleteCategoria(cat.id);
+        novaLinha.querySelector('.btn-danger').addEventListener('click', function() {
+            deletarCategoria(cat.id);
         });
         
-        tr.querySelector('.btn-edit').addEventListener('click', function() {
-            handleEditCategoria(cat);
+        novaLinha.querySelector('.btn-edit').addEventListener('click', function() {
+            prepararEdicaoCategoria(cat);
         });
 
-        tbody.appendChild(tr);
+        corpoTabela.appendChild(novaLinha);
     });
 }
 
-function handleCategoriaSubmit(event) {
+function salvarCategoria(event) {
     event.preventDefault();
 
     const id = document.getElementById('categoria-id').value;
@@ -233,70 +262,70 @@ function handleCategoriaSubmit(event) {
     }
 
     if (id) {
-        let index = -1;
-        for (let i = 0; i < db.categorias.length; i++) {
-            if (db.categorias[i].id == id) {
-                index = i;
+        let indice = -1;
+        for (let i = 0; i < dados.categorias.length; i++) {
+            if (dados.categorias[i].id == id) {
+                indice = i;
                 break;
             }
         }
         
-        if (index !== -1) {
-            db.categorias[index].nome = nome;
+        if (indice !== -1) {
+            dados.categorias[indice].nome = nome;
         }
     } else {
-        db.categorias.push({
+        dados.categorias.push({
             id: Date.now(),
             nome: nome
         });
     }
 
-    saveDB();
-    renderCategoriasTable();
+    salvarDados();
+    mostrarTabelaCategorias();
     document.getElementById('form-categoria').reset();
     document.getElementById('categoria-id').value = '';
 }
 
-function handleEditCategoria(cat) {
+function prepararEdicaoCategoria(cat) {
     document.getElementById('categoria-id').value = cat.id;
     document.getElementById('cat-nome').value = cat.nome;
     window.scrollTo(0, 0);
 }
 
-function handleDeleteCategoria(id) {
+function deletarCategoria(id) {
     if (confirm('Tem certeza que deseja excluir esta categoria?')) {
-        let index = -1;
-        for (let i = 0; i < db.categorias.length; i++) {
-            if (db.categorias[i].id == id) {
-                index = i;
+        let indice = -1;
+        for (let i = 0; i < dados.categorias.length; i++) {
+            if (dados.categorias[i].id == id) {
+                indice = i;
                 break;
             }
         }
         
-        if (index !== -1) {
-            db.categorias.splice(index, 1); 
-            saveDB();
-            renderCategoriasTable();
+        if (indice !== -1) {
+            dados.categorias.splice(indice, 1); 
+            salvarDados();
+            mostrarTabelaCategorias();
         }
     }
 }
 
-function initMetasPage() {
-    const form = document.getElementById('form-meta');
-    form.addEventListener('submit', handleMetaSubmit);
-    renderMetasTable();
+function iniciarPagMetas() {
+    const formulario = document.getElementById('form-meta');
+    formulario.addEventListener('submit', salvarMeta);
+    mostrarTabelaMetas();
 }
 
-function renderMetasTable() {
-    const tbody = document.getElementById('metas-tbody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
+function mostrarTabelaMetas() {
+    const corpoTabela = document.getElementById('metas-tbody');
+    if (!corpoTabela) return;
+    corpoTabela.innerHTML = '';
 
-    db.metas.forEach(function(meta) {
-        const tr = document.createElement('tr'); 
+    dados.metas.forEach(function(meta) {
+        const novaLinha = document.createElement('tr'); 
         const progresso = (meta.valorAlvo > 0) ? (meta.valorAtual / meta.valorAlvo) * 100 : 0;
 
-        tr.innerHTML = `
+        novaLinha.innerHTML = `
             <td>${meta.descricao}</td>
             <td>R$ ${meta.valorAlvo.toFixed(2)}</td>
             <td>R$ ${meta.valorAtual.toFixed(2)}</td>
@@ -307,20 +336,19 @@ function renderMetasTable() {
             </td>
         `;
 
-        tr.querySelector('.btn-danger').addEventListener('click', function() {
-            handleDeleteMeta(meta.id);
+        novaLinha.querySelector('.btn-danger').addEventListener('click', function() {
+            deletarMeta(meta.id);
         });
         
-        tr.querySelector('.btn-edit').addEventListener('click', function() {
-            handleEditCategoria(meta); // CORREÇÃO: Isso estava errado, deveria ser handleEditMeta
+        novaLinha.querySelector('.btn-edit').addEventListener('click', function() {
+            prepararEdicaoMeta(meta);
         });
 
-        tbody.appendChild(tr); 
+        corpoTabela.appendChild(novaLinha); 
     });
 }
 
-// CORREÇÃO: A função handleEditMeta não existia, estava chamando a de Categoria por engano.
-function handleEditMeta(meta) {
+function prepararEdicaoMeta(meta) {
     document.getElementById('meta-id').value = meta.id;
     document.getElementById('meta-descricao').value = meta.descricao;
     document.getElementById('meta-alvo').value = meta.valorAlvo;
@@ -329,7 +357,7 @@ function handleEditMeta(meta) {
 }
 
 
-function handleMetaSubmit(event) {
+function salvarMeta(event) {
     event.preventDefault(); 
 
     const id = document.getElementById('meta-id').value;
@@ -343,21 +371,21 @@ function handleMetaSubmit(event) {
     }
 
     if (id) {
-        let index = -1;
-        for (let i = 0; i < db.metas.length; i++) {
-            if (db.metas[i].id == id) {
-                index = i;
+        let indice = -1;
+        for (let i = 0; i < dados.metas.length; i++) {
+            if (dados.metas[i].id == id) {
+                indice = i;
                 break;
             }
         }
         
-        if (index !== -1) {
-            db.metas[index].descricao = descricao;
-            db.metas[index].valorAlvo = valorAlvo;
-            db.metas[index].valorAtual = valorAtual;
+        if (indice !== -1) {
+            dados.metas[indice].descricao = descricao;
+            dados.metas[indice].valorAlvo = valorAlvo;
+            dados.metas[indice].valorAtual = valorAtual;
         }
     } else {
-        db.metas.push({
+        dados.metas.push({
             id: Date.now(),
             descricao: descricao,
             valorAlvo: valorAlvo,
@@ -365,26 +393,26 @@ function handleMetaSubmit(event) {
         }); 
     }
 
-    saveDB(); 
-    renderMetasTable();
+    salvarDados(); 
+    mostrarTabelaMetas();
     document.getElementById('form-meta').reset();
     document.getElementById('meta-id').value = '';
 }
 
-function handleDeleteMeta(id) {
-    if (confirm('Tem certeza que deseja excluir esta categoria?')) { // O texto do confirm está "categoria" mas funciona
-        let index = -1;
-        for (let i = 0; i < db.metas.length; i++) {
-            if (db.metas[i].id == id) {
-                index = i;
+function deletarMeta(id) {
+    if (confirm('Tem certeza que deseja excluir esta meta?')) {
+        let indice = -1;
+        for (let i = 0; i < dados.metas.length; i++) {
+            if (dados.metas[i].id == id) {
+                indice = i;
                 break;
             }
         }
         
-        if (index !== -1) {
-            db.metas.splice(index, 1); 
-            saveDB();
-            renderMetasTable();
+        if (indice !== -1) {
+            dados.metas.splice(indice, 1); 
+            salvarDados();
+            mostrarTabelaMetas();
         }
     }
 }
