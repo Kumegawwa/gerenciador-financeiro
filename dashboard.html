@@ -9,56 +9,27 @@
 <body>
     <header>
         <h1>Minhas Finanças</h1>
-        <nav>
-            <ul>
-                <li><a href="dashboard.html">Dashboard</a></li>
-                <li><a href="transacoes.html">Transações</a></li>
-                <li><a href="categorias.html">Categorias</a></li>
-                <li><a href="metas.html">Metas</a></li>
-                <li><a href="#" id="btn-logout">Sair</a></li>
-            </ul>
-        </nav>
     </header>
+    <nav>
+        <ul>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="transacoes.html">Transações</a></li>
+            <li><a href="categorias.html">Categorias</a></li>
+            <li><a href="metas.html">Metas</a></li>
+            <li><a href="#" id="btn-logout">Sair</a></li>
+        </ul>
+    </nav>
 
     <main>
-        <section>
-            <h2>Resumo Financeiro</h2>
-            <div class="dashboard-grid" id="dashboard-grid">
-                <article class="card">
-                    <h3>Saldo Atual</h3>
-                    <p id="saldo-atual">R$ 0,00</p>
-                </article>
-                <article class="card">
-                    <h3>Total Receitas</h3>
-                    <p id="total-receitas">R$ 0,00</p>
-                </article>
-                <article class="card">
-                    <h3>Total Despesas</h3>
-                    <p id="total-despesas">R$ 0,00</p>
-                </article>
-            </div>
-        </section>
-
-        <section class="grafico-resumo">
-            <h2>Receitas vs. Despesas</h2>
-            <div id="grafico-container">
-            </div>
-        </section>
-
-        <section>
-            <h2>Metas Atuais</h2>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Descrição</th>
-                            <th>Progresso</th>
-                        </tr>
-                    </thead>
-                    <tbody id="metas-dashboard-tbody">
-                        </tbody>
-                </table>
-            </div>
+        <section id="dashboard-grid">
+            <h2>Bem-vindo, Admin!</h2>
+            <p>Selecione uma das opções no menu acima para começar a gerenciar suas finanças.</p>
+            <p>Você pode adicionar, editar e remover:</p>
+            <ul>
+                <li>Suas transações (entradas e saídas)</li>
+                <li>Suas categorias (para organizar as transações)</li>
+                <li>Suas metas (para acompanhar seus objetivos)</li>
+            </ul>
         </section>
     </main>
 
