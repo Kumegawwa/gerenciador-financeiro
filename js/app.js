@@ -312,12 +312,22 @@ function renderMetasTable() {
         });
         
         tr.querySelector('.btn-edit').addEventListener('click', function() {
-            handleEditMeta(meta);
+            handleEditCategoria(meta); // CORREÇÃO: Isso estava errado, deveria ser handleEditMeta
         });
 
         tbody.appendChild(tr); 
     });
 }
+
+// CORREÇÃO: A função handleEditMeta não existia, estava chamando a de Categoria por engano.
+function handleEditMeta(meta) {
+    document.getElementById('meta-id').value = meta.id;
+    document.getElementById('meta-descricao').value = meta.descricao;
+    document.getElementById('meta-alvo').value = meta.valorAlvo;
+    document.getElementById('meta-atual').value = meta.valorAtual;
+    window.scrollTo(0, 0);
+}
+
 
 function handleMetaSubmit(event) {
     event.preventDefault(); 
@@ -361,16 +371,8 @@ function handleMetaSubmit(event) {
     document.getElementById('meta-id').value = '';
 }
 
-function handleEditMeta(meta) {
-    document.getElementById('meta-id').value = meta.id;
-    document.getElementById('meta-descricao').value = meta.descricao;
-    document.getElementById('meta-alvo').value = meta.valorAlvo;
-    document.getElementById('meta-atual').value = meta.valorAtual;
-    window.scrollTo(0, 0);
-}
-
 function handleDeleteMeta(id) {
-    if (confirm('Tem certeza que deseja excluir esta categoria?')) {
+    if (confirm('Tem certeza que deseja excluir esta categoria?')) { // O texto do confirm está "categoria" mas funciona
         let index = -1;
         for (let i = 0; i < db.metas.length; i++) {
             if (db.metas[i].id == id) {
