@@ -12,25 +12,22 @@ A aplicação é 100% front-end, escrita em **HTML, CSS e JavaScript puro (Vanil
 
 ## ✨ Funcionalidades Principais
 
-O projeto cumpre todos os requisitos da disciplina, implementando um sistema de gestão completo:
+O projeto cumpre todos os requisitos obrigatórios da disciplina, implementando um sistema de gestão completo:
 
-* **🔐 Autenticação:** Sistema de login simulado para proteger a área administrativa.
-* **📊 Dashboard Visual:** Página principal com resumo financeiro (Saldo, Receitas, Despesas) e um gráfico de barras dinâmico de Receitas vs. Despesas.
+* **🔐 Autenticação:** Sistema de login simulado (`admin`/`1234`) para proteger a área administrativa, usando `localStorage` para gerenciar a sessão.
 * **🔁 CRUD de Transações:** Funcionalidade completa para Criar, Ler, Editar e Excluir (CRUD) transações financeiras.
 * **🏷️ CRUD de Categorias:** Gerenciamento total de categorias para organizar as transações.
 * **🎯 CRUD de Metas:** Definição e acompanhamento de metas de economia.
-* **🔗 Associação de Dados:** Transações são diretamente associadas a uma categoria no momento da criação.
-* **🔍 Filtro Dinâmico:** O relatório de transações pode ser filtrado por categoria.
-* **💾 Persistência Local:** Todos os dados (transações, categorias, metas) são salvos e carregados do `LocalStorage` do navegador, mantendo o estado da aplicação.
-* **📱 Design Responsivo:** O layout utiliza **Flexbox** (para navegação) e **Grid** (para o dashboard), se adaptando a dispositivos móveis.
+* **💾 Persistência Local:** Todos os dados (transações, categorias, metas) são salvos e carregados do `LocalStorage` do navegador, usando `JSON.stringify` e `JSON.parse`.
+* **📱 Design Responsivo:** O layout utiliza **Flexbox** (para navegação) e **Grid** (para o dashboard), se adaptando a dispositivos móveis com `@media` queries.
 
 ## 🚀 Tecnologias Utilizadas
 
 Este projeto foi construído do zero utilizando apenas as tecnologias-base da web, conforme ensinado em aula:
 
 * **HTML5:** Estruturação semântica.
-* **CSS3:** Estilização, layout com Flexbox, Grid e responsividade.
-* **JavaScript (ES6+):** Manipulação do DOM, eventos, lógica de CRUD (Arrays, `forEach`, `splice`) e persistência com `LocalStorage`.
+* **CSS3:** Estilização, layout com Flexbox e Grid.
+* **JavaScript (ES6+):** Manipulação do DOM (`createElement`, `appendChild`, `removeChild`), eventos (`addEventListener`), lógica de CRUD (Arrays, `forEach`, `splice`) e persistência com `LocalStorage`.
 
 ## 🛠️ Como Executar o Projeto
 
@@ -54,12 +51,6 @@ Para acessar a área administrativa (dashboard), utilize as seguintes credenciai
 * **Senha:** `1234`
 
 *(Credenciais definidas em `js/app.js`)*
-
-## 📸 Screenshots
-
-| Dashboard (Resumo e Gráfico) | Gerenciador de Transações (com Filtro) |
-| :---: | :---: |
-| ![Dashboard](assets/print-dashboard.png) | ![Transações](assets/print-transacoes.png) |
 
 ## 🎓 Contexto do Projeto
 
